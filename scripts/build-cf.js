@@ -39,7 +39,21 @@ try {
     
     // 5. Create a proxy _worker.js that Cloudflare will use
     console.log('🛠 Creating proxy _worker.js...');
-    const proxyContent = "export * from './server.js';\nexport { default } from './server.js';";
+    const proxyContent = `import server from './server.js';
+
+export default {
+  async fetch(request, env, ctx) {
+    try {
+      const assetResponse = await env.ASSETS.fetch(request);
+      if (assetResponse && assetResponse.status !== 404) {
+        return assetResponse;
+      }
+    } catch (e) {}
+    
+    return server.fetch(request, env, ctx);
+  }
+}
+export * from './server.js';`;
     writeFileSync(join(distClient, '_worker.js'), proxyContent);
   } else {
     throw new Error('❌ Could not find server.js in dist/server!');
