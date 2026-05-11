@@ -67,15 +67,15 @@ function LoginPage() {
   };
 
   const handleGoogle = async () => {
-    const result = await lovable.auth.signInWithOAuth('google', {
-      redirect_uri: window.location.origin,
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      }
     });
-    if (result.error) {
-      toast.error('Ошибка входа через Google');
-      return;
+    if (error) {
+      toast.error('Ошибка входа через Google: ' + error.message);
     }
-    if (result.redirected) return;
-    navigate({ to: '/' });
   };
 
   const inputClass = 'w-full rounded-lg border border-border bg-surface px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald/50 transition-all';
